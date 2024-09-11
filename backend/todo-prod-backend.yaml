@@ -1,0 +1,99 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    deployment.kubernetes.io/revision: "9"
+  creationTimestamp: "2024-09-03T13:45:26Z"
+  generation: 11
+  labels:
+    app: todo-prod-backend
+  name: todo-prod-backend
+  namespace: default
+  resourceVersion: "7622430"
+  uid: 99bdee10-7cce-44fe-8d07-740210349ce5
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: todo-prod-backend
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: todo-prod-backend
+    spec:
+      containers:
+      - image: akscicd/todo-prod-backend:11
+        imagePullPolicy: IfNotPresent
+        name: todo-prod-backend
+        resources: {}
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+status:
+  availableReplicas: 1
+  conditions:
+  - lastTransitionTime: "2024-09-03T13:45:26Z"
+    lastUpdateTime: "2024-09-05T11:31:44Z"
+    message: ReplicaSet "todo-prod-backend-67754cb549" has successfully progressed.
+    reason: NewReplicaSetAvailable
+    status: "True"
+    type: Progressing
+  - lastTransitionTime: "2024-09-06T11:36:11Z"
+    lastUpdateTime: "2024-09-06T11:36:11Z"
+    message: Deployment has minimum availability.
+    reason: MinimumReplicasAvailable
+    status: "True"
+    type: Available
+  observedGeneration: 11
+  readyReplicas: 1
+  replicas: 1
+  updatedReplicas: 1
+
+---
+
+#--------------------------------------------------------------
+#svc
+#--------------------------------------------------------------
+
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    cloud.google.com/neg: '{"ingress":true}'
+  creationTimestamp: "2024-09-05T10:19:12Z"
+  labels:
+    app: todo-prod-backend
+  name: todo-prod-backend
+  namespace: default
+  resourceVersion: "6634426"
+  uid: 105f1b49-48ba-4f7d-851b-b3fd584f447b
+spec:
+  clusterIP: 34.118.236.86
+  clusterIPs:
+  - 34.118.236.86
+  internalTrafficPolicy: Cluster
+  ipFamilies:
+  - IPv4
+  ipFamilyPolicy: SingleStack
+  ports:
+  - port: 8000
+    protocol: TCP
+    targetPort: 8000
+  selector:
+    app: todo-prod-backend
+  sessionAffinity: None
+  type: ClusterIP
+status:
+  loadBalancer: {}

@@ -1,0 +1,84 @@
+#-----------------------------------------
+#todo-db deployment code
+#-----------------------------------------
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    app: todo-db
+  name: todo-db
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: todo-db
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: todo-db
+    spec:
+      volumes:
+      - name: todo-db-vol
+        persistentVolumeClaim:
+          claimName: todo-db-pvc 
+      securityContext:
+        fsGroup: 10001
+        runAsUser: 10001
+      containers:
+      - env:
+        - name: ACCEPT_EULA
+          value: "Y"
+        - name: MSSQL_SA_PASSWORD
+          value: "Amit123@"
+        - name: MSSQL_PID
+          value: "Evaluation"
+        image: akscicd/ms-sql:v2
+        securityContext:
+          privileged: true  # Adjust this according to your security needs
+        name: todo-db
+        volumeMounts:
+        - name: todo-db-vol
+          mountPath: "/var/opt/mssql"
+        resources: {}
+status: {}
+
+---
+
+#---------------------------------------------
+#SVC
+#---------------------------------------------
+
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    cloud.google.com/neg: '{"ingress":true}'
+  creationTimestamp: "2024-09-05T11:20:23Z"
+  labels:
+    app: todo-db
+  name: todo-db
+  namespace: default
+  resourceVersion: "6670724"
+  uid: 6e04780d-9377-4106-9912-c4ca59cc7aba
+spec:
+  clusterIP: 34.118.239.147
+  clusterIPs:
+  - 34.118.239.147
+  internalTrafficPolicy: Cluster
+  ipFamilies:
+  - IPv4
+  ipFamilyPolicy: SingleStack
+  ports:
+  - port: 1433
+    protocol: TCP
+    targetPort: 1433
+  selector:
+    app: todo-db
+  sessionAffinity: None
+  type: ClusterIP
+status:
+  loadBalancer: {}
